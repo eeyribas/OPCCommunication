@@ -21,26 +21,16 @@ namespace OPCCommunication
         public Form1()
         {
             InitializeComponent();
-
-            this.Size = new Size(455, 650);
-            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            try
-            {
-                OpcCom.ServerEnumerator serverEnumerator = new OpcCom.ServerEnumerator();
-                Opc.Server[] servers = serverEnumerator.GetAvailableServers(Opc.Specification.COM_DA_30);
+            OpcCom.ServerEnumerator serverEnumerator = new OpcCom.ServerEnumerator();
+            Opc.Server[] servers = serverEnumerator.GetAvailableServers(Opc.Specification.COM_DA_30);
 
-                listBox1.Items.Clear();
-                foreach (Opc.Server tmp in servers)
-                    listBox1.Items.Add(tmp.Url.ToString());
-            }
-            catch (Exception Ex)
-            {
-                MessageBox.Show(Ex.Message);
-            }
+            listBox1.Items.Clear();
+            foreach (Opc.Server tmp in servers)
+                listBox1.Items.Add(tmp.Url.ToString());
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -52,16 +42,7 @@ namespace OPCCommunication
             {
                 Opc.URL url = new Opc.URL(listBox1.SelectedItem.ToString());
                 server = new Opc.Da.Server(factor, null);
-
-                try
-                {
-                    server.Connect(url, new Opc.ConnectData(new System.Net.NetworkCredential()));
-                }
-                catch (Exception Ex)
-                {
-                    MessageBox.Show("Connection Error:" + Ex.Message);
-                    return;
-                }
+                server.Connect(url, new Opc.ConnectData(new System.Net.NetworkCredential()));
 
                 Opc.Da.SubscriptionState subscriptionState = new Opc.Da.SubscriptionState();
                 group = (Opc.Da.Subscription)server.CreateSubscription(subscriptionState);
@@ -87,6 +68,7 @@ namespace OPCCommunication
                 itemValue.Value = random.Next(0, 100);
                 itemValues[i] = itemValue;
             }
+
             group.Write(itemValues, 1, WriteCompleteCallback, out req);
         }
 
@@ -95,7 +77,7 @@ namespace OPCCommunication
             group.Read(group.Items, 0, ReadCompleteCallback, out req);
         }
 
-        void ReadCompleteCallback(object clientHandle, Opc.Da.ItemValueResult[] results)
+        private void ReadCompleteCallback(object clientHandle, Opc.Da.ItemValueResult[] results)
         {
             foreach (Opc.Da.ItemValueResult readResult in results)
             {
@@ -106,7 +88,7 @@ namespace OPCCommunication
             }
         }
 
-        void WriteCompleteCallback(object clientHandle, Opc.IdentifiedResult[] results)
+        private void WriteCompleteCallback(object clientHandle, Opc.IdentifiedResult[] results)
         {
             foreach (Opc.IdentifiedResult writeResult in results)
             {
